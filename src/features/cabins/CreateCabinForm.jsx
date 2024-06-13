@@ -47,10 +47,17 @@ const Error = styled.span`
 `;
 
 function CreateCabinForm() {
-  const { register, handleSubmit, reset } = useForm();
+  console.log("first");
+  const {
+    register,
+    handleSubmit,
+    reset,
+    getValues,
+    formState: { errors },
+  } = useForm();
 
   const queryClient = useQueryClient();
-  const { mutate, isloading, error, data } = useMutation({
+  const { mutate, isLoading, error, data } = useMutation({
     mutationFn: createCabin,
     onSuccess: () => {
       toast.success("succses");
@@ -63,26 +70,36 @@ function CreateCabinForm() {
   });
 
   function onSubmit(data) {
+    console.log(data.image);
     mutate(data);
+    // console.log(data.image[0].name);
+  }
+  function onError(data) {
+    // console.log(errors);
+    console.log(data);
   }
   return (
-    <Form onSubmit={handleSubmit(onSubmit)}>
+    <Form onSubmit={handleSubmit(onSubmit, onError)}>
       <FormRow>
         <Label htmlFor="name">Cabin name</Label>
         <Input
           type="text"
           id="name"
-          {...register("name")}
+          disabled={isLoading}
+          {...register("name", { required: "name is required" })}
         />
+        <Error>{errors?.name?.message}</Error>
       </FormRow>
 
       <FormRow>
         <Label htmlFor="maxCapacity">Maximum capacity</Label>
         <Input
+          disabled={isLoading}
           type="number"
           id="maxCapacity"
-          {...register("maxCapacity")}
+          {...register("maxCapacity", { required: "max capacity is requird" })}
         />
+        <Error>{errors?.maxCapacity?.message}</Error>
       </FormRow>
 
       <FormRow>
@@ -90,8 +107,16 @@ function CreateCabinForm() {
         <Input
           type="number"
           id="regularPrice"
-          {...register("regularPrice")}
+          disabled={isLoading}
+          {...register("regularPrice", {
+            required: "regularprice is required",
+            // min: {
+            //   value: 1,
+            //   message: "value is bigger 1",
+            // },
+          })}
         />
+        <Error>{errors?.regularPrice?.message}</Error>
       </FormRow>
 
       <FormRow>
@@ -100,8 +125,17 @@ function CreateCabinForm() {
           type="number"
           id="discount"
           defaultValue={0}
-          {...register("discount")}
+          disabled={isLoading}
+          {...register("discount", {
+            required: "discount is required",
+            validate: (value) =>
+              Number(value) <= Number(getValues().regularPrice) ||
+              "discount is less regularprice",
+          })}
         />
+        {console.log(typeof getValues().regularPrice)}
+        <Error>{errors?.discount?.message}</Error>
+        {/* <Error>{getValues().regularPrice}</Error> */}
       </FormRow>
 
       <FormRow>
@@ -110,8 +144,10 @@ function CreateCabinForm() {
           type="number"
           id="description"
           defaultValue=""
-          {...register("description")}
+          {...register("description", { required: "description is required" })}
+          disabled={isLoading}
         />
+        <Error>{errors?.description?.message}</Error>
       </FormRow>
 
       <FormRow>
@@ -119,8 +155,10 @@ function CreateCabinForm() {
         <FileInput
           id="image"
           accept="image/*"
-          {...register("image")}
+          {...register("image", { required: "image is required" })}
+          disabled={isLoading}
         />
+        <Error>{errors?.image?.message}</Error>
       </FormRow>
 
       <FormRow>
@@ -128,10 +166,11 @@ function CreateCabinForm() {
         <Button
           variation="secondary"
           type="reset"
+          disabled={isLoading}
         >
           Cancel
         </Button>
-        <Button>Add cabin</Button>
+        <Button disabled={isLoading}>Add cabin</Button>
       </FormRow>
     </Form>
   );
