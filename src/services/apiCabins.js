@@ -34,17 +34,13 @@ export async function createCabin(newCabin) {
   return data;
 }
 
-// async function uploadFile(file, imageName) {
-//   const { data, error } = await supabase.storage
-//     .from("cabin-image")
-//     .upload(imageName, file);
-//   if (error) {
-//     // Handle error
-//     // const { error, data } = await supabase.from("cabins").delete().eq("id", id);
-//     // if (error) throw new Error(error.message);
-//     // return data;
-//     console.log(error);
-//   } else {
-//     // Handle success
-//     return data;
-//   }
+
+export async function editCabin(){
+
+const { data, error } = await supabase
+  .from('cabins')
+  .update({ other_column: 'otherValue' })
+  .eq('some_column', 'someValue')
+  .select()
+          
+}
